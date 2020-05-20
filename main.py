@@ -2,7 +2,7 @@ import cv2
 from model import model
 
 NNmodel = model(64, 64, 29)
-NNmodel.LoadData(data_folder='./Data', load_count_images_per_class=3)
+NNmodel.LoadData(data_folder='./Data', load_count_images_per_class=500)
 NNmodel.CreateNeuralModel()
 NNmodel.Fit(validation_split=0.2, epochs=30, batch_size=32)
 NNmodel.SaveModel(dir='.\\model\\')
