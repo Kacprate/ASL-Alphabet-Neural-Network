@@ -2,6 +2,8 @@ data/
 logs/
 .vscode
 model/
+model2/
+model3/
 test/
 cameratest.py
 test.jpg

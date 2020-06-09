@@ -4,12 +4,12 @@ from termcolor import colored
 import time
 import numpy as np
 
-NNmodel = model(64, 64, 29)
+NNmodel = model()
 NNmodel.LoadData(data_folder='./data', load_count_images_per_class=5)
-# NNmodel.CreateNeuralModel()
-# NNmodel.Fit(validation_split=0.2, epochs=11, batch_size=32)
-# NNmodel.SaveModel(dir='.\\model\\')
-NNmodel.LoadModel(dir='.\\model\\')
+NNmodel.CreateNeuralModel()
+# NNmodel.Fit(epochs=6, batch_size=64)
+# NNmodel.SaveModel(dir='.\\model3\\')
+NNmodel.LoadModel(dir='.\\model2\\')
 
 # print("Prediction: " + NNmodel.classes[NNmodel.PredictFromImage('.\\data\\asl_alphabet_test\\asl_alphabet_test\\A_test.jpg').argmax()])
 #print("Prediction: " + NNmodel.classes[NNmodel.PredictFromImage('.\\test\\test4.jpg').argmax()])
@@ -19,6 +19,10 @@ NNmodel.LoadModel(dir='.\\model\\')
 # print("Prediction: " + NNmodel.classes[predictionVector.argmax()])
 # print(predictionVectorWithLetters)
 # print()
+
+
+
+
 
 def sortKey(x):
     return x[1]
@@ -37,6 +41,10 @@ while True:
     print(predictionVectorWithLetters[:3])
     print()
     time.sleep(0.3)
+
+
+
+
 
 # prediction = NNmodel.Predict(NNmodel.dataset[1])
 # for i, p in enumerate(prediction):

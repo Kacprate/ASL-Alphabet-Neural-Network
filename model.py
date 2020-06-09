@@ -4,9 +4,10 @@ from os import listdir
 import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten
 from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class model:
@@ -19,7 +20,7 @@ class model:
         self.input_shape = (image_width, image_height, 3)
         self.output_vector_length = output_vector_length
 
-    def LoadData(self, data_folder = "./Data", load_count_images_per_class = 10):
+    def LoadData(self, data_folder = "./Data", load_count_images_per_class = -1):
         training_data_folder = data_folder + '/asl_alphabet_train/asl_alphabet_train'
         example_data_folder = data_folder +  '/asl_alphabet_test/asl_alphabet_test'
         
@@ -87,14 +88,14 @@ class model:
         model = Sequential()
         model.add(Conv2D(64, kernel_size=4, strides=1, activation='relu', input_shape=self.input_shape))
         model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.1))
         model.add(Conv2D(128, kernel_size=4, strides=1, activation='relu'))
         model.add(Conv2D(128, kernel_size=4, strides=2, activation='relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.1))
         model.add(Conv2D(256, kernel_size=4, strides=1, activation='relu'))
         model.add(Conv2D(256, kernel_size=4, strides=2, activation='relu'))
         model.add(Flatten())
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.1))
         model.add(Dense(512, activation='relu'))
         model.add(Dense(self.output_vector_length, activation='softmax'))
 
@@ -102,14 +103,27 @@ class model:
         model.summary()
         self.model = model
 
-    def Fit(self, validation_split=0.2, epochs=10, batch_size=32):
+    def Fit(self, epochs=30, batch_size=32):
         logdir=".\\logs\\fit\\" + datetime.now().strftime("%Y%m%d-%H%M%S")
         tensorboard_callback = TensorBoard(log_dir=logdir)
         if self.model is None:
             raise Exception('Model is not created!')
         if self.dataset is None:
             raise Exception('Dataset is not loaded!')
-        self.model.fit(self.dataset[0], self.dataset[2], validation_split=validation_split, epochs=epochs, batch_size=batch_size, callbacks=[tensorboard_callback])
+
+        train_image_generator = ImageDataGenerator(
+            rotation_range=20,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            horizontal_flip=True
+        )
+
+        val_image_generator = ImageDataGenerator()
+
+        train_generator = train_image_generator.flow(x=self.dataset[0], y=self.dataset[2], batch_size=batch_size, shuffle=True)
+        val_generator = val_image_generator.flow(x=self.dataset[1], y=self.dataset[3], batch_size=batch_size, shuffle=False)
+        early_stopping = EarlyStopping(patience=5,monitor="val_loss")
+        self.model.fit_generator(train_generator, epochs=epochs, validation_data=val_generator, callbacks=[tensorboard_callback, early_stopping])
 
     def SaveModel(self, dir='.\\models\\'):
         self.model.save(dir)
