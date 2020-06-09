@@ -116,3 +116,18 @@ class model:
 
     def Predict(self, data):
         return self.model.predict(data)
+
+    def PredictFromImage(self, file_dir):
+        img = cv2.imread(file_dir)
+        if img is not None:
+            img = cv2.resize(img, (self.image_width, self.image_height))
+            return self.model.predict(np.asarray([img]))[0]
+        else:
+            print("Could not load image " + file_dir)
+
+    def PredictFromCV2Frame(self, frame):
+        if frame is not None:
+            frame = cv2.resize(frame, (self.image_width, self.image_height))
+            return self.model.predict(np.asarray([frame]))[0]
+        else:
+            print("CV2 frame not provided")

@@ -2,6 +2,9 @@ data/
 logs/
 .vscode
 model/
+test/
+cameratest.py
+test.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
