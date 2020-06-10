@@ -4,12 +4,13 @@ from termcolor import colored
 import time
 import numpy as np
 
-NNmodel = model()
-NNmodel.LoadData(data_folder='./data', load_count_images_per_class=5)
-NNmodel.CreateNeuralModel()
-# NNmodel.Fit(epochs=6, batch_size=64)
-# NNmodel.SaveModel(dir='.\\model3\\')
-NNmodel.LoadModel(dir='.\\model2\\')
+NNmodel = model(64, 64, 29)
+NNmodel.LoadData(data_folder='./data', load_count_images_per_class=100)
+# NNmodel.CreateNeuralModel()
+# NNmodel.Fit(epochs=20, batch_size=64)
+# NNmodel.SaveModel()
+NNmodel.LoadModel(filepath='.\\finalmodels\\20200610-190520')
+print(NNmodel.Evaluate())
 
 # print("Prediction: " + NNmodel.classes[NNmodel.PredictFromImage('.\\data\\asl_alphabet_test\\asl_alphabet_test\\A_test.jpg').argmax()])
 #print("Prediction: " + NNmodel.classes[NNmodel.PredictFromImage('.\\test\\test4.jpg').argmax()])
@@ -33,6 +34,7 @@ while True:
     if not ret:
         print('failed to read image from camera')
         break
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # grayscale conversion
 
     predictionVector = np.asarray([int(x * 1000) / 1000 for x in NNmodel.PredictFromCV2Frame(frame)])
     predictionVectorWithLetters = list(zip(NNmodel.classes, predictionVector))

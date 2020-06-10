@@ -4,8 +4,8 @@ from os import listdir
 import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
-from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
+from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPool2D, BatchNormalization
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -76,9 +76,9 @@ class model:
 
         self.dataset = (X_train, X_test, Y_train, Y_test)
 
-    def LoadModel(self, dir='.\\model\\'):
-        print('Loading model from ' + dir)
-        self.model = load_model(dir)
+    def LoadModel(self, filepath):
+        print('Loading model from ' + filepath)
+        self.model = load_model(filepath)
         if self.model is not None:
             print('Loaded successfully')
         else:
@@ -86,14 +86,18 @@ class model:
 
     def CreateNeuralModel(self):
         model = Sequential()
-        model.add(Conv2D(64, kernel_size=4, strides=1, activation='relu', input_shape=self.input_shape))
-        model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
+        model.add(Conv2D(16, kernel_size=4, strides=1, activation='relu', padding='same', input_shape=self.input_shape))
+        model.add(Conv2D(32, kernel_size=4, strides=1, activation='relu', padding='same'))
+        model.add(MaxPool2D(pool_size=2))
         model.add(Dropout(0.1))
-        model.add(Conv2D(128, kernel_size=4, strides=1, activation='relu'))
-        model.add(Conv2D(128, kernel_size=4, strides=2, activation='relu'))
+        model.add(Conv2D(32, kernel_size=4, strides=1, activation='relu', padding='same'))
+        model.add(Conv2D(64, kernel_size=4, strides=1, activation='relu', padding='same'))
+        model.add(MaxPool2D(pool_size=2))
         model.add(Dropout(0.1))
-        model.add(Conv2D(256, kernel_size=4, strides=1, activation='relu'))
-        model.add(Conv2D(256, kernel_size=4, strides=2, activation='relu'))
+        model.add(Conv2D(128, kernel_size=4, strides=1, activation='relu', padding='same'))
+        model.add(Conv2D(256, kernel_size=4, strides=1, activation='relu', padding='same'))
+        model.add(MaxPool2D(pool_size=2))
+        model.add(BatchNormalization())
         model.add(Flatten())
         model.add(Dropout(0.1))
         model.add(Dense(512, activation='relu'))
@@ -104,7 +108,9 @@ class model:
         self.model = model
 
     def Fit(self, epochs=30, batch_size=32):
-        logdir=".\\logs\\fit\\" + datetime.now().strftime("%Y%m%d-%H%M%S")
+        model_name = datetime.now().strftime("%Y%m%d-%H%M%S")
+        logdir=".\\logs\\fit\\" + model_name
+        self.model_name = model_name
         tensorboard_callback = TensorBoard(log_dir=logdir)
         if self.model is None:
             raise Exception('Model is not created!')
@@ -115,18 +121,21 @@ class model:
             rotation_range=20,
             width_shift_range=0.2,
             height_shift_range=0.2,
-            horizontal_flip=True
         )
 
         val_image_generator = ImageDataGenerator()
 
         train_generator = train_image_generator.flow(x=self.dataset[0], y=self.dataset[2], batch_size=batch_size, shuffle=True)
         val_generator = val_image_generator.flow(x=self.dataset[1], y=self.dataset[3], batch_size=batch_size, shuffle=False)
-        early_stopping = EarlyStopping(patience=5,monitor="val_loss")
-        self.model.fit_generator(train_generator, epochs=epochs, validation_data=val_generator, callbacks=[tensorboard_callback, early_stopping])
+        early_stopping = EarlyStopping(patience=10,monitor="val_loss")
+        checkpoint = ModelCheckpoint('.\\snapshots\\' + model_name + '\\epoch{epoch:02d}', monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+        self.model.fit_generator(train_generator, epochs=epochs, validation_data=val_generator, callbacks=[tensorboard_callback, early_stopping, checkpoint])
 
-    def SaveModel(self, dir='.\\models\\'):
-        self.model.save(dir)
+    def SaveModel(self, model_name=None):
+        if model_name is None:
+            model_name = self.model_name
+
+        self.model.save('.\\models\\' + model_name)
 
     def Predict(self, data):
         return self.model.predict(data)
@@ -145,3 +154,6 @@ class model:
             return self.model.predict(np.asarray([frame]))[0]
         else:
             print("CV2 frame not provided")
+
+    def Evaluate(self):
+        return self.model.evaluate(self.dataset[1], self.dataset[3])
