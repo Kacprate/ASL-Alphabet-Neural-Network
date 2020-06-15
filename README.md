@@ -17,3 +17,10 @@ This data set contains 87,000 images of size 200x200 pixels. There are 29 classe
 * `PredictFromImage` classifies the input provided image path
 * `PredictFromCV2Frame` classifies the CV2 Frame (image loaded with CV2 library)
 * `Evaluate` equivalent to model.evaluate(X_test, y_test)
+
+## Research results
+The model achieved validation accuracy of 99.03% and training accuracy of 96.35% after 4 epochs. It was saved using checkpoints if an improvement in validation accuracy was made. The training process was terminated manually in 6th epoch but that epoch and the 5th one shown no improvement in comparison to the 4th epoch which is why no more checkpoints were created.
+
+Despite the large amount of training data the model has problems with recognizing letters presented by hand on a background different than a plain white wall. What is more problems also occur when trying to differentiate letters such as R and U as they are very similiar in ASL.
+
+Possible improvements could be made in preprocessing and more epochs could be used to train the model in order to resolve the problem mentioned lastly. However when it comes to recognition on a random background - the whole dataset should be replaced or filled with lots of new, more suitable data.
