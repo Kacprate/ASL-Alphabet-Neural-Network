@@ -1,7 +1,12 @@
-Data/
+data/
 logs/
 .vscode
-model/
+models/
+test/
+cameratest.py
+test.jpg
+snapshots/
+finalmodels/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
