@@ -8,7 +8,7 @@ This data set contains 87,000 images of size 200x200 pixels. There are 29 classe
 
 ## Methods
 * `__init__(self, image_witdh, image_height, output_vector_length)` - constructs the `model` class preparing it to convert all input images to 64x64 resolution. The output_vector_length is the amount of classes recognized by the neural model.
-* `LoadData` is a custom method useful for data loading
+* `LoadData` is a custom method useful for data loading, preprocessing and splitting into train and test part
 * `LoadModel` loads saved neural model from given path
 * `CreateNeuralModel` creates a neural network model
 * `Fit` fits the model with data loaded with `LoadData`
