@@ -23,4 +23,4 @@ The model achieved validation accuracy of 99.03% and training accuracy of 96.35%
 
 Despite the large amount of training data the model has problems with recognizing letters presented by hand on a background different than a plain white wall. What is more problems also occur when trying to differentiate letters such as R and U as they are very similiar in ASL.
 
-Possible improvements could be made in preprocessing and more epochs could be used to train the model in order to resolve the problem mentioned lastly. However when it comes to recognition on a random background - the whole dataset should be replaced or filled with lots of new, more suitable data.
+Possible improvements could be made in preprocessing and more epochs could be used to train the model in order to resolve the problem mentioned lastly. However when it comes to recognition on a random background - the whole dataset should be replaced or filled with lots of new, more suitable data. Another solution is to preprocess the input of the prediction so that we extract only the shape of the hand and change the background to white.
